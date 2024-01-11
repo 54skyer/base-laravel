@@ -73,8 +73,10 @@ class ModelGenerator extends Command
              */
             foreach ($tableDetails as $fieldName => $fieldDetail) {
                 $fieldList[]        = $fieldName;
-                $fieldCommentList[] = sprintf(" * @property %s     %s     %s",
-                    $fieldDetail->getType()->getName(),
+                $fieldCommentList[] = sprintf(
+                    " * @property %s     %s     %s",
+                    $fieldDetail->getType()
+                                ->getName(),
                     $fieldName,
                     $fieldDetail->getComment()
                 );
@@ -85,28 +87,32 @@ class ModelGenerator extends Command
 
             $tableClassName = Str::studly($table);
             # 约定命名空间的第一个成员映射项目根目录下的目录名称，比如["app" => "App", "database" => "Database", "test" => "Test"];
-            $namespaceArrayFirstItem = array_shift($namespaceArray);
-            $namespaceArrayFirstItemMapTo
-                                     = Str::camel($namespaceArrayFirstItem);
+            $namespaceArrayFirstItem      = array_shift($namespaceArray);
+            $namespaceArrayFirstItemMapTo = Str::camel(
+                $namespaceArrayFirstItem
+            );
 
             array_unshift($namespaceArray, $namespaceArrayFirstItemMapTo);
-            $modelFieldPath = base_path().DIRECTORY_SEPARATOR
-                              .implode(DIRECTORY_SEPARATOR, $namespaceArray)
-                              .DIRECTORY_SEPARATOR.$tableClassName.".php";
+            $modelFieldPath = base_path().DIRECTORY_SEPARATOR.implode(
+                    DIRECTORY_SEPARATOR, $namespaceArray
+                ).DIRECTORY_SEPARATOR.$tableClassName.".php";
             if (file_exists($modelFieldPath)) {
                 # 不存在直接创建文件，文件已存在，就更新注释和fillable
 
             } else {
-                $modelFileContent
-                    = view("System.model", [
-                    "namespace"            => implode('\\', $namespaceArrayOrigin),
-                    "tableAnnotation"      => $tableAnnotation,
-                    "tableFieldAnnotation" => $tableFieldAnnotation,
-                    "tableClassName"       => $tableClassName,
-                    "tableName"            => $table,
-                    "mysqlConnectionName"  => $connection,
-                    "fieldList"            => $fieldList,
-                ])->render();
+                $modelFileContent = view(
+                    "System.model", [
+                        "namespace"            => implode(
+                            '\\', $namespaceArrayOrigin
+                        ),
+                        "tableAnnotation"      => $tableAnnotation,
+                        "tableFieldAnnotation" => $tableFieldAnnotation,
+                        "tableClassName"       => $tableClassName,
+                        "tableName"            => $table,
+                        "mysqlConnectionName"  => $connection,
+                        "fieldList"            => $fieldList,
+                    ]
+                )->render();
 
                 file_put_contents($modelFieldPath, $modelFileContent);
             }
